@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <link href="http://twitter.github.com/bootstrap/assets/css/bootstrap.css" rel="stylesheet">
+    <style type="text/css">
+      html { height: 100% }
+      body { height: 100%; margin: 0; padding: 0 }
+      #map_canvas { height: 100% }
+    </style>
+    <script type="text/javascript"
+            src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js">
+    </script>
+    <script type="text/javascript"
+            src="http://maps.googleapis.com/maps/api/js?key=AIzaSyBmnmPhWoSxxaQ-oJeTiCN_9ooVZVoBVHw&sensor=false">
+    </script>
+    <script type="text/javascript">
+
+      var map;
+      var taxis = {} // Map "id" -> obj
+
+      function initialize() {
+        var myOptions = {
+          center: new google.maps.LatLng(-33.440,-70.633),
+          zoom: 15,
+          mapTypeId: google.maps.MapTypeId.ROADMAP
+        };
+
+        map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
+      }
+
+      function requestUpdates(){
+        $.ajax({
+          url: "http://127.0.0.1:8080/updates?" + ( new Date().getTime() ),
+          success: function(data){ parseUpdates(data); },
+          error: function(data){ console.error("Servicio no disponible"); }
+        });
+      }
+
+      function parseUpdates(msg){
+        $('#updating').html(msg);
+        var updatesArr = eval(msg);
+        var i;
+        for (i = 0; i < updatesArr.length; i++){
+          var updated = updatesArr[i];
+          var id = updated['id']
+          if (taxis[id] == null){
+
+            // Create a new Marker
+
+            var icon = 'https://chart.googleapis.com/chart?chst=d_bubble_icon_text_small_withshadow&chld=taxi|bb|' + id + '|FFFFFF|000000'
+            var position = new google.maps.LatLng(updated['lat'], updated['lon']);
+            var taxi = new google.maps.Marker({
+              map: map,
+              draggable: false,
+              position: position,
+              icon: icon,
+              title: 'Taxi #' + id
+            });
+
+            taxis[id] = taxi;
+
+          } else {
+            // Move existing Marker
+            var taxi = taxis[id]
+            var position = new google.maps.LatLng(updated['lat'], updated['lon']);
+            taxi.setPosition(position);
+          }
+        }
+      }
+
+      window.setInterval("requestUpdates()", 1000);
+
+    </script>
+  </head>
+  <body onload="initialize()">
+  
+    <div style="height:90%">
+      <div class="row" style="height:100%">
+        <div class="span3">
+          <span id="updating">updating...</span>
+          <br/>
+        </div>
+
+        <div class="span9" style="height:100%">
+          <div id="map_canvas" style="height:100%"></div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

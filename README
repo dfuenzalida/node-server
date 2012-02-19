@@ -1,0 +1,26 @@
+=========================================================
+Prueba de mapa + servidor sockets (node) + app web (node)
+=========================================================
+
+0.- Requisitos:
+    $ npm install pg
+    $ npm install json
+
+1.- Iniciar el servidor sockets que recibe las actualizaciones de
+    coordenadas:
+
+    $ node socket-server.js
+
+2.- Iniciar la aplicación web que despliega el mapa y ejecuta consultas
+    sobre las actualizaciones:
+
+    $ node updates.js
+
+3.- Abrir la página web http://127.0.0.1:8080/index.html, hacer zoom out
+
+4.- Enviar actualizaciones de coordenadas con el cliente multithread:
+
+    $ cd ~/Programas/eclipse-java-indigo/workspace/CentralServerClientThreaded
+    $ java -cp bin org.denis.CentralServerClientThreaded 10 100
+    (para 10 vehículos, con 100 actualizaciones)
+
